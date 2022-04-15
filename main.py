@@ -128,8 +128,6 @@ if __name__ == '__main__':
         if len(port) == 0:
             print("[!!!] No ports to scan. Abort")
 
-        print(port)
-
 
 
     except KeyboardInterrupt as e:
