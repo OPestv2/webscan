@@ -10,11 +10,9 @@ MIN_PORT = 0
 HELP = """
 webscan is a simple port scanner
 
-Syntax: python webscan <-h host> <-p port>
--h | --help     Show this message and exit
--H | --host     Set hosts ip or domain name
--P | --port     Set port / ports using syntax: exact value(s) 4,5,6,7, range 4-7, combined 4,6,8-20 or use - for 0-65535 range
-                Additionally you can specify a part of full range e.g. 10000- means 10000-65535, 1,2,3-5,100- is equal [1,2,3,4,5,100,101,102,...,65535]
+Set port / ports using syntax: exact value(s) 4,5,6,7 OR range 4-7 OR combined 4,6,8-20 OR - for 0-65535 (full range)
+Additionally you can specify a part of full range e.g. 10000- means 10000-65535
+1,2,3-5,100- is equal to [1,2,3,4,5,100,101,102,...,65535]
 
 Examples:
 python webscan -h
@@ -27,9 +25,11 @@ Scanner proceeds only one host per run.
 """
 
 """
-Port resolver rewrites port sequences and ranges to port list used in scan
+resolve_ports rewrites port sequences and ranges to port list used in scan
 """
-def resolvePorts(ports_list):
+
+
+def resolve_ports(ports_list):
     # divide PORT string to
     port_packets = ports_list.split(",")
     # initialize array of ports and set them 'not used'
@@ -49,17 +49,16 @@ def resolvePorts(ports_list):
                     raise AttributeError("Maximum one '-' per port range allowed")
 
                 # possible TypeError occurrence while casting to integer
-                start = 0
+                start = MIN_PORT
                 if range_bounds[0] != "":
                     start = int(range_bounds[0])
                     if start > MAX_PORT or start < MIN_PORT:
                         raise AttributeError("Values in range %d - %d allowed" % (MIN_PORT, MAX_PORT))
-                end = 65535
+                end = MAX_PORT
                 if range_bounds[1] != "":
-                    end = int(range_bounds[1])
+                    end = int(range_bounds[1]) + 1
                     if end > MAX_PORT or end < MIN_PORT:
                         raise AttributeError("Values in range %d - %d allowed" % (MIN_PORT, MAX_PORT))
-                end += 1
 
                 for i in range(start, end):
                     if result[i] is True:
@@ -78,7 +77,6 @@ def resolvePorts(ports_list):
                     overwrite_occurrences += 1
                 result[specified_port] = True
 
-
         except (AttributeError, ValueError) as e:
             print("[!] There is an error in port: '%s'. %s" % (port_packet, e))
             choice = input("[?] Do you want to skip this element and continue? [y/N] ")
@@ -86,8 +84,7 @@ def resolvePorts(ports_list):
                 return None
 
     if overwrite_warning is True:
-        print("[!] %d port numbers occurred more than once while resolving port ranges" % (overwrite_occurrences))
-
+        print("[!] %d port numbers occurred more than once while resolving port ranges" % overwrite_occurrences)
 
     # rewrite result array to exact values list
 
@@ -122,7 +119,7 @@ if __name__ == '__main__':
             sys.exit(0)
 
         # resolve ports
-        port = resolvePorts(port)
+        port = resolve_ports(port)
 
         print("[i] Port list contains %d element(s)" % len(port))
         if len(port) == 0:
@@ -130,11 +127,8 @@ if __name__ == '__main__':
 
 
 
+
+
     except KeyboardInterrupt as e:
         print("[i] Ctrl+C means Good Bye!")
         exit(0)
-
-
-
-
-
