@@ -1,5 +1,5 @@
 SimpleScanner is a python script used to scan given host's ports.<br> 
-It returns ports state like open / closed / filtered (like Nmap).
+It returns ports state like open / closed.
 
 Usage syntax:<br>
 python webscan --help<br>
