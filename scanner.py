@@ -1,16 +1,22 @@
 import socket
 import sys
-from _socket import gethostbyname
+from _socket import gethostbyname, gethostbyaddr
 import time
+from datetime import datetime
 from threading import Thread
 
 
 class Scanner:
-    def __init__(self, hosts, ports):
+    def __init__(self, hosts, ports, timeout, show_closed=False, hide_open=False):
+        # list of strings
         self.hosts = hosts
+        # list of strings
         self.ports = ports
-
         self.timeout = 1
+        if timeout is not None: self.timeout = timeout
+        self.show_closed = show_closed
+        self.hide_open = hide_open
+
         # dictionary for open and closed ports list assigned to specified host (later more hosts)
         self.result_array = {}
         for host in hosts:
@@ -28,10 +34,16 @@ class Scanner:
         for host in self.hosts:
             try:
                 ip = gethostbyname(host)
-                print("[i] Scanning host '%s' (%s)" % (host, ip))
+                if ip == host:
+                    dn = gethostbyaddr(host)
+                    print("[i] Scanning host '%s' (DN: %s), at %s" % (host, dn[0], str(datetime.now())))
+                    if len(dn[1]) > 0:
+                        print("[i] Host aliases: " + str(dn[1]))
+                else:
+                    print("[i] Scanning host '%s' (IP: %s), at %s" % (host, ip, str(datetime.now())))
             except:
-                print("[!!!] Could not recognize host '%s'" % host)
-                sys.exit(0)
+                print("[-] Could not connect or recognize host '%s'" % host)
+                return
 
             # create threads pool
             threads = []
@@ -46,13 +58,15 @@ class Scanner:
                 thread.join(self.timeout+1)
 
             # summarise results
-            print("\n[i] Scanned %d ports" % len(self.ports))
-            print("[i] Found %d open ports: " % len(self.result_array[host][0]))
-            for msg in self.result_array[host][0]:
-                print(msg)
-            print("\n[i] Found %d closed ports: " % len(self.result_array[host][1]))
-            for msg in self.result_array[host][1]:
-                print(msg)
+            print("\n[i] Scanned %d port(s)" % len(self.ports))
+            print("[i] Found %d open port(s): " % len(self.result_array[host][0]))
+            if self.hide_open is False:
+                for msg in self.result_array[host][0]:
+                    print(msg)
+            print("[i] Found %d closed port(s): " % len(self.result_array[host][1]))
+            if self.show_closed is True:
+                for msg in self.result_array[host][1]:
+                    print(msg)
 
         end_time = time.time()
 
@@ -63,9 +77,9 @@ class Scanner:
         try:
             s.settimeout(self.timeout)
             conn = s.connect((host, port))
-            self.result_array[host][0].append(f"[+] Port {port} is open")
+            self.result_array[host][0].append(f"\t[+] Port {port} is open")
         except Exception as e:
-            self.result_array[host][1].append(f"[-] Port {port} is closed. Reason: {e}")
+            self.result_array[host][1].append(f"\t[+] Port {port} is closed. Reason: {e}")
         finally:
             s.close()
 
