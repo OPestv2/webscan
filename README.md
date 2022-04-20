@@ -1,7 +1,7 @@
 Webscan is a python script used to scan given hosts' ports. 
 It returns ports states like open / closed.
 
-Syntax: 
+Syntax: <br/>
 `webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] [-c | --show-closed] [-o | --hide-open]`
 
 | Argument                      | Description                             |
@@ -33,32 +33,30 @@ Ports and hosts specification
 | combined           | -4,7-10,15,100-     |
 
 
-#### Hosts can be specified as a single value, sequence, range, subnet mask or combined
+#### Hosts can be specified as a single value, sequence or using subnet mask
 | Type                | Example                  |
 |---------------------|--------------------------|
 | single value        | www.google.com           |
 | sequence            | 127.0.0.1,www.github.com |
-| range               | 13.14.16.17-20.19.18.16  |
-| subnet mask         |                          |
-| combined            |                          |
+| subnet mask         | 192.168.2.17/24          |
 
 #### Reading hosts and ports from file
-File should contain list of hosts (first) and ports only **separated by one empty line**. Specification rules can be applied. 
+File should contain list of hosts (first) and ports only, **separated by one empty line**. Specification rules (mentioned above) can be applied. 
 For example:
 ```text
 localhost
 10.0.12.5
 10.1.15.34
 100.0.0.1-100.0.0.10
-192.168.0.0\24
+192.168.5.12/24
 
 10-100
 ``` 
-First 5 lines are ip addresses, then empty line and ports. Make sure You have permission to read the input file.
+First 5 lines are IP addresses, then empty line and ports. Make sure the input file have appropriate permission to be read.
 
 Console output
 ---
-#### Output (logs) type is described by one of the following signs
+#### Output (log lines) type is described by one of the following signs
 
 | Logging syntax | Description                                  |
 |----------------|----------------------------------------------|
@@ -71,8 +69,8 @@ Console output
 
 Additional features
 ---
-#### Handling mistakes
-In case of incorrectly specified hostname/IP or port, when script finds that, there is option to omit this value and continue.
+#### Handling user mistakes
+In case of incorrectly specified host name/IP or port, when script finds that, there is option to omit this value and continue.
 
 ***
 > Script created using Python 3.9

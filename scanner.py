@@ -28,19 +28,17 @@ class Scanner:
 
     # private function used to start separate threads for scanning
     def __scan_thread_dispatcher(self):
-        # count full execution time
-        start_time = time.time()
-
         for host in self.hosts:
             try:
                 ip = gethostbyname(host)
+                # if given host is IP address find its Domain Name
                 if ip == host:
                     dn = gethostbyaddr(host)
-                    print("[i] Scanning host '%s' (DN: %s), at %s" % (host, dn[0], str(datetime.now())))
+                    print("[i] Scanning host '%s' (DN: %s)" % (host, dn[0]))
                     if len(dn[1]) > 0:
                         print("[i] Host aliases: " + str(dn[1]))
                 else:
-                    print("[i] Scanning host '%s' (IP: %s), at %s" % (host, ip, str(datetime.now())))
+                    print("[i] Scanning host '%s' (IP: %s)" % (host, ip))
             except:
                 print("[-] Could not connect or recognize host '%s'" % host)
                 return
@@ -55,7 +53,7 @@ class Scanner:
 
             # wait for all threads finish their job
             for thread in threads:
-                thread.join(self.timeout+1)
+                thread.join(self.timeout + 1)
 
             # summarise results
             print("\n[i] Scanned %d port(s)" % len(self.ports))
@@ -68,10 +66,6 @@ class Scanner:
                 for msg in self.result_array[host][1]:
                     print(msg)
 
-        end_time = time.time()
-
-        print("\n[i] Script executed in %.2f seconds" % (end_time - start_time))
-
     def __scan_port(self, host, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -82,6 +76,3 @@ class Scanner:
             self.result_array[host][1].append(f"\t[+] Port {port} is closed. Reason: {e}")
         finally:
             s.close()
-
-
-
