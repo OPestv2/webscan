@@ -2,6 +2,7 @@
 
 import optparse
 import sys
+import time
 
 from resolver import Resolver
 from scanner import Scanner
@@ -13,6 +14,10 @@ Syntax: webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] [-c |
 """
 
 if __name__ == '__main__':
+    start_time = time.time()
+    localtime = time.asctime(time.localtime(start_time))
+    print("\n[i] Script started at %s" % localtime)
+
     # Resolver class is used to rewrite hosts and ports parameters on hosts and ports lists used in scan
     resolver = Resolver()
 
@@ -59,17 +64,24 @@ if __name__ == '__main__':
         # resolve hosts
         hosts = resolver.resolve_hosts(hosts)
 
-        print("[i] Ports list contains %d element(s)" % len(ports))
-        if len(ports) == 0:
+        if ports is None or len(ports) == 0:
             print("[!!!] No ports to scan. Abort")
+            sys.exit(0)
+        print("[i] Ports list contains %d element(s)" % len(ports))
 
-        print("[i] Hosts list contains %d element(s)" % len(hosts))
-        if len(hosts) == 0:
+        if hosts is None or len(hosts) == 0:
             print("[!!!] No hosts to scan. Abort")
+            sys.exit(0)
+        print("[i] Hosts list contains %d element(s)" % len(hosts))
 
         # run scanner
         scanner = Scanner(hosts, ports, timeout, show_closed, hide_open)
         scanner.scan()
+
+        # count execution time
+        end_time = time.time()
+        localtime = time.asctime(time.localtime(end_time))
+        print("\n[i] Script finished at %s and executed in %.2f seconds" % (localtime, (end_time - start_time)))
 
     except KeyboardInterrupt as e:
         print("[i] Ctrl+C means Good Bye!")
