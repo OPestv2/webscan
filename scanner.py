@@ -1,8 +1,6 @@
 import socket
-import sys
 from _socket import gethostbyname, gethostbyaddr
 import time
-from datetime import datetime
 from threading import Thread
 
 
@@ -28,20 +26,24 @@ class Scanner:
 
     # private function used to start separate threads for scanning
     def __scan_thread_dispatcher(self):
+        print("")
         for host in self.hosts:
+            # current host indication
+            print("\r[i] Scanning host %s..." % host, end="")
+            time.sleep(.005)
             try:
                 ip = gethostbyname(host)
                 # if given host is IP address find its Domain Name
                 if ip == host:
                     dn = gethostbyaddr(host)
-                    print("[i] Scanning host '%s' (DN: %s)" % (host, dn[0]))
+                    print("\n[i] Host '%s' (DN: %s) is up" % (host, dn[0]))
                     if len(dn[1]) > 0:
                         print("[i] Host aliases: " + str(dn[1]))
                 else:
-                    print("[i] Scanning host '%s' (IP: %s)" % (host, ip))
+                    print("\n[i] Host '%s' (IP: %s) is up" % (host, ip))
             except:
-                print("[-] Could not connect or recognize host '%s'" % host)
-                return
+                # if connection with host is impossible, omit port scan
+                continue
 
             # create threads pool
             threads = []
@@ -56,7 +58,7 @@ class Scanner:
                 thread.join(self.timeout + 1)
 
             # summarise results
-            print("\n[i] Scanned %d port(s)" % len(self.ports))
+            print("[i] Scanned %d port(s)" % len(self.ports))
             print("[i] Found %d open port(s): " % len(self.result_array[host][0]))
             if self.hide_open is False:
                 for msg in self.result_array[host][0]:
@@ -65,14 +67,21 @@ class Scanner:
             if self.show_closed is True:
                 for msg in self.result_array[host][1]:
                     print(msg)
+            # format output
+            print("")
+        print("\r", end="")
 
     def __scan_port(self, host, port):
+        # create socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.settimeout(self.timeout)
+            # try to connect
             conn = s.connect((host, port))
-            self.result_array[host][0].append(f"\t[+] Port {port} is open")
+            # connection at given port is established
+            self.result_array[host][0].append(f"\t[+] Port {port} is open. Probably '{socket.getservbyport(port)}'")
         except Exception as e:
-            self.result_array[host][1].append(f"\t[+] Port {port} is closed. Reason: {e}")
+            # connection refused for some reason
+            self.result_array[host][1].append(f"\t[-] Port {port} is closed. Reason: {e}")
         finally:
             s.close()
