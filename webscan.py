@@ -7,6 +7,21 @@ import time
 from resolver import Resolver
 from scanner import Scanner
 
+NAME = """
+ __       __          __        ______                             
+|  \  _  |  \        |  \      /      \                            
+| ▓▓ / \ | ▓▓ ______ | ▓▓____ |  ▓▓▓▓▓▓\ _______  ______  _______  
+| ▓▓/  ▓\| ▓▓/      \| ▓▓    \| ▓▓___\▓▓/       \|      \|       \ 
+| ▓▓  ▓▓▓\ ▓▓  ▓▓▓▓▓▓\ ▓▓▓▓▓▓▓\\▓▓    \|  ▓▓▓▓▓▓▓ \▓▓▓▓▓▓\ ▓▓▓▓▓▓▓\ 
+| ▓▓ ▓▓\▓▓\▓▓ ▓▓    ▓▓ ▓▓  | ▓▓_\▓▓▓▓▓▓\ ▓▓      /      ▓▓ ▓▓  | ▓▓
+| ▓▓▓▓  \▓▓▓▓ ▓▓▓▓▓▓▓▓ ▓▓__/ ▓▓  \__| ▓▓ ▓▓_____|  ▓▓▓▓▓▓▓ ▓▓  | ▓▓
+| ▓▓▓    \▓▓▓\▓▓     \ ▓▓    ▓▓\▓▓    ▓▓\▓▓    \ \ ▓▓   ▓▓ ▓▓  | ▓▓
+ \▓▓      \▓▓ \▓▓▓▓▓▓▓\▓▓▓▓▓▓▓  \▓▓▓▓▓▓  \▓▓▓▓▓▓▓ \▓▓▓▓▓▓▓\▓▓   \▓▓ v1.0
+                                                                   
+    by OPest 
+"""
+
+
 HELP = """
 webscan is a simple port scanner
 
@@ -14,9 +29,10 @@ Syntax: webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] [-c |
 """
 
 if __name__ == '__main__':
+    print(NAME+"\n")
     start_time = time.time()
     localtime = time.asctime(time.localtime(start_time))
-    print("\n[i] Script started at %s" % localtime)
+    print("[i] Script started at %s\n" % localtime)
 
     # Resolver class is used to rewrite hosts and ports parameters on hosts and ports lists used in scan
     resolver = Resolver()
@@ -61,13 +77,14 @@ if __name__ == '__main__':
 
         # resolve ports
         ports = resolver.resolve_ports(ports)
-        # resolve hosts
-        hosts = resolver.resolve_hosts(hosts)
 
         if ports is None or len(ports) == 0:
             print("[!!!] No ports to scan. Abort")
             sys.exit(0)
         print("[i] Ports list contains %d element(s)" % len(ports))
+
+        # resolve hosts
+        hosts = resolver.resolve_hosts(hosts)
 
         if hosts is None or len(hosts) == 0:
             print("[!!!] No hosts to scan. Abort")
@@ -84,5 +101,5 @@ if __name__ == '__main__':
         print("\n[i] Script finished at %s and executed in %.2f seconds" % (localtime, (end_time - start_time)))
 
     except KeyboardInterrupt as e:
-        print("[i] Ctrl+C means Good Bye!")
+        print("\n[i] Ctrl+C means Good Bye!")
         exit(0)

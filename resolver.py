@@ -1,4 +1,5 @@
 import re
+import time
 import traceback
 
 
@@ -39,6 +40,7 @@ class Resolver:
         self.hosts.append(host)
 
     def resolve_ports(self, ports):
+        ports = self.__remove_white_characters(ports)
         # divide PORT string individual packets and process them
         for port_packet in ports.split(","):
             try:
@@ -89,6 +91,7 @@ class Resolver:
         return self.ports
 
     def resolve_hosts(self, hosts):
+        hosts = self.__remove_white_characters(hosts)
         # divide HOST string to individual packets and process them
         for host_packet in hosts.split(","):
             try:
@@ -112,7 +115,6 @@ class Resolver:
                     # self.__calculate_ip_range_using_subnet_mask(ip,mask)
                     self.hosts += self.__calculate_ip_range_using_subnet_mask(ip, mask)
 
-
                 else:
                     self.__add_host(host_packet)
 
@@ -126,24 +128,26 @@ class Resolver:
         return self.hosts
 
     def __calculate_ip_range_using_subnet_mask(self, ip, mask):
+        print("[i] Resolving ip address: %s with subnet mask %d" % (ip, mask))
+
         ips = []
         # split ip to list of integers
         ip_array = [int(ip_part) for ip_part in ip.split(".")]
 
-        subnet_mask_array = self.__calc_subnet_mask(ip_array, mask)
+        subnet_mask_array = self.__calc_subnet_mask(mask)
 
-        print(f"[D] subnet mask is: {self.__array2ips(subnet_mask_array)}")
+        print(f"[i] Subnet mask address is: {self.__array2ips(subnet_mask_array)}")
 
         # calculate network address
         network_address_array = self.__calc_network_address(ip_array, subnet_mask_array)
 
-        print(f"[D] network address is: {self.__array2ips(network_address_array)}")
+        print(f"[i] Network address is: {self.__array2ips(network_address_array)}")
 
         # broadcast address is last address in subnet
         # negation of 255 value gives 9bit value (-256) it is necessary to make modulo 256 to get '0' value
         broadcast_address = self.__calc_broadcast_address(ip_array, subnet_mask_array)
 
-        print(f"[D] broadcast address is: {self.__array2ips(broadcast_address)}")
+        print(f"[i] Broadcast address is: {self.__array2ips(broadcast_address)}")
 
         # increment address using mask
         ip_bit_array = "".join(self.__dec2bins(octet) for octet in network_address_array)
@@ -157,12 +161,10 @@ class Resolver:
         # omit first address, it is reserved network address
         hosts_part = self.__increment_binary(hosts_part)
 
-        while int(hosts_part, 2) != int(hosts_limit, 2):
+        while hosts_part != hosts_limit:
             result_ip = self.__ipsequence2addr(network_part + hosts_part)
-            print("\t[i] Generated ip address: %s" % result_ip)
             ips.append(result_ip)
             hosts_part = self.__increment_binary(hosts_part)
-
         return ips
 
     def __increment_binary(self, subject_binstr, ingredient_binstr="1"):
@@ -202,7 +204,7 @@ class Resolver:
     def __calc_network_address(self, ip_array, subnet_mask_array):
         return [(ip_oct & mask_oct) for ip_oct, mask_oct in zip(ip_array, subnet_mask_array)]
 
-    def __calc_subnet_mask(self, ip_array, mask):
+    def __calc_subnet_mask(self, mask):
         # create subnet mask list of integers
         # initially fill array with '255's if mask is multiple of 8 (contains 8, 16, 24 or 32 bits set to 1)
         subnet_mask_array = [255] * int(mask / 8)
@@ -216,7 +218,6 @@ class Resolver:
         # now 'mask' is a position where 1s sequence ends and 0s begin to appear in 8bit sequence (n-th octet)
         for exponent in range(7, 7 - mask, -1):
             val += 2 ** exponent
-            print(f"[D] val={val}, pow={2 ** exponent}")
 
         # when mask % 8 != 0 it is necessary to add value to array, otherwise
         # zeros will be added in the 'while' below
@@ -228,3 +229,12 @@ class Resolver:
             subnet_mask_array.append(0)
 
         return subnet_mask_array
+
+    def __remove_white_characters(self, string):
+        # replace \n to ,
+        string = string.replace("\n", ",")
+        # remove spaces, tabulations and 'returns'
+        string = string.replace(" ", "")
+        string = string.replace("\t", "")
+        string = string.replace("\r", "")
+        return string

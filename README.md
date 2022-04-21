@@ -14,9 +14,8 @@ Syntax: <br/>
 | -o, --hide-open               | Don't print list of open ports          |
 |                               |                                         |
 | **Not supported yet**         | --------------------------------------- |
-| -W FILE, --write=FILE         | Write output to file                    |
-| -R FILE, --read=FILE          | Read hosts and ports from file          |
 | -v, --use-ipv6                | Specify hosts using IPv6 notation       |
+
 
 
 
@@ -41,18 +40,21 @@ Ports and hosts specification
 | subnet mask         | 192.168.2.17/24          |
 
 #### Reading hosts and ports from file
-File should contain list of hosts (first) and ports only, **separated by one empty line**. Specification rules (mentioned above) can be applied. 
-For example:
-```text
-localhost
-10.0.12.5
-10.1.15.34
-100.0.0.1-100.0.0.10
-192.168.5.12/24
+Script does not have an in-built reading input from file mechanism. 
+But the best way to achieve this manually is to 'cat' file into parameter.
+```bash 
+python webscan.py -H $(cat _hosts_filename_ | tr "\n" ",") -P $(cat _ports_filename_ | tr "\n" ",")
+```
 
-10-100
-``` 
-First 5 lines are IP addresses, then empty line and ports. Make sure the input file have appropriate permission to be read.
+When values in file are in separate lines use the ```tr``` command to make text a one line, comma separated argument. 
+Be sure not to put any whitespaces e.g. spaces, tabulations.
+
+#### Writing console output to file
+Script does not have an in-built writing console output to file mechanism. But the best way to achieve this manually is to use redirector ```>```
+as shown below
+```bash 
+python webscan.py -H _hosts_ -P _ports_ > _output_filename_
+```
 
 Console output
 ---
