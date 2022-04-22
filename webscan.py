@@ -23,19 +23,15 @@ NAME = """
 
 
 HELP = """
-webscan is a simple port scanner
+Webscan is a simple port scanner used to scan single or multiple hosts 
 
-Syntax: webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] [-c | --show-closed] [-o | --hide-open]
+Syntax: webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] 
+                [-c | --show-closed] [-o | --hide-open]
+                [[-y | --err_continue] | [-n | --err_stop]]
 """
 
 if __name__ == '__main__':
     print(NAME+"\n")
-    start_time = time.time()
-    localtime = time.asctime(time.localtime(start_time))
-    print("[i] Script started at %s\n" % localtime)
-
-    # Resolver class is used to rewrite hosts and ports parameters on hosts and ports lists used in scan
-    resolver = Resolver()
 
     try:
         # constructor argument is usage hint
@@ -52,9 +48,20 @@ if __name__ == '__main__':
         # toggle HIDE OPEN ports
         parser.add_option('-o', '--hide-open', action="store_true", dest='hide_open', help="Hide list of open ports",
                           default=False)
+        # set onerror CONTINUE
+        parser.add_option('-y', '--err-continue', action="store_true", dest='err_continue',
+                          help="Continue script execution if error occurs")
+        # set onerror STOP
+        parser.add_option('-n', '--err-stop', action="store_true", dest='err_stop',
+                          help="Abort script execution if error occurs")
 
         # parse arguments
         (options, args) = parser.parse_args()
+
+        # start counting time
+        start_time = time.time()
+        localtime = time.asctime(time.localtime(start_time))
+        print("[i] Script started at %s\n" % localtime)
 
         # check if required parameters are set
         hosts = options.host
@@ -62,24 +69,39 @@ if __name__ == '__main__':
         timeout = options.timeout
         show_closed = options.show_closed
         hide_open = options.hide_open
+        err_continue = options.err_continue
+        err_stop = options.err_stop
 
+        # check if hosts and ports are non empty
         if hosts is None or ports is None:
-            print("[!!!] Error. Required HOST and PORT parameters, usage: " + parser.usage)
+            print("[!!!] Error. Required HOST and PORT parameters, usage: " + parser.usage, file=sys.stderr)
+            sys.exit(0)
+
+        # check if woman is running script (choice confusion)
+        if err_continue is True and err_stop is True:
+            print("[!!!] You can not force to continue and abort execution at the same time! Idk what to do...",
+                  file=sys.stderr)
             sys.exit(0)
 
         # cast timeout to int
         if timeout is not None:
             try:
                 timeout = int(timeout)
-            except ValueError:
-                print("[!!!] Timeout value must be an integer. Abort")
+                # and check if it is positive value
+                if timeout < 1:
+                    raise ValueError("Timeout must be integer and >= 1")
+            except ValueError as e:
+                print("[!!!] %s. Abort" % e, file=sys.stderr)
                 sys.exit(0)
+
+        # Resolver class is used to rewrite hosts and ports parameters on hosts and ports lists used in scan
+        resolver = Resolver(err_continue, err_stop)
 
         # resolve ports
         ports = resolver.resolve_ports(ports)
 
         if ports is None or len(ports) == 0:
-            print("[!!!] No ports to scan. Abort")
+            print("[!!!] No ports to scan. Abort", file=sys.stderr)
             sys.exit(0)
         print("[i] Ports list contains %d element(s)" % len(ports))
 
@@ -87,7 +109,7 @@ if __name__ == '__main__':
         hosts = resolver.resolve_hosts(hosts)
 
         if hosts is None or len(hosts) == 0:
-            print("[!!!] No hosts to scan. Abort")
+            print("[!!!] No hosts to scan. Abort", file=sys.stderr)
             sys.exit(0)
         print("[i] Hosts list contains %d element(s)" % len(hosts))
 
@@ -101,5 +123,5 @@ if __name__ == '__main__':
         print("\n[i] Script finished at %s and executed in %.2f seconds" % (localtime, (end_time - start_time)))
 
     except KeyboardInterrupt as e:
-        print("\n[i] Ctrl+C means Good Bye!")
+        print("\n[!] Ctrl+C means Good Bye!", file=sys.stderr)
         exit(0)

@@ -1,10 +1,10 @@
 import re
-import time
+import sys
 import traceback
 
 
 class Resolver:
-    def __init__(self):
+    def __init__(self, err_continue, err_stop):
         self.MAX_PORT = 65536
         self.MIN_PORT = 0
 
@@ -26,6 +26,14 @@ class Resolver:
         # if port number occurs more than once warn about duplication
         self.duplication_warning = False
         self.duplication_occurrences = 0
+
+        # error handling style
+        # 1. [False/False] just print info and ask what to do
+        # 2. [True/False] omit wrong values
+        # 3. [False/True] Abort
+        # 4. [True/True] WTF?! (kidding, this scenario is avoided)
+        self.ERR_CONTINUE = err_continue
+        self.ERR_STOP = err_stop
 
     def __add_port(self, port):
         # if port is already added set warning flag to true and count occurrences
@@ -78,14 +86,22 @@ class Resolver:
                     self.__add_port(specified_port)
 
             except (AttributeError, ValueError) as e:
-                print("[!] There is an error in port: '%s'. %s" % (port_packet, e))
-                choice = input("[?] Do you want to skip this element and continue? [y/N] ")
+                print("[!] There is an error in port '%s': %s " % (port_packet, e), file=sys.stderr, end="")
+                if self.ERR_CONTINUE:
+                    choice = 'y'
+                    print("[AUTO CONTINUE]", file=sys.stderr)
+                elif self.ERR_STOP:
+                    choice = 'n'
+                    print("[AUTO STOP]", file=sys.stderr)
+                else:
+                    print("\n[?] Do you want to skip this element and continue? [y/N] ", file=sys.stderr, end="")
+                    choice = input()
                 if choice == 'n' or choice == 'N' or choice == "":
                     return None
 
         # warn about duplications
         if self.duplication_warning is True:
-            print("[!] There were %d ports' duplication(s)" % self.duplication_occurrences)
+            print("[!] Found %d ports duplicated" % self.duplication_occurrences, file=sys.stderr)
 
         # return final ports array
         return self.ports
@@ -120,8 +136,16 @@ class Resolver:
 
             except (AttributeError, ValueError) as e:
                 traceback.print_exc()
-                print("[!] There is an error in host: '%s'. %s" % (host_packet, e))
-                choice = input("[?] Do you want to skip this element and continue? [y/N] ")
+                print("[!] There is an error in host '%s': %s" % (host_packet, e), file=sys.stderr, end="")
+                if self.ERR_CONTINUE:
+                    choice = 'y'
+                    print("[AUTO CONTINUE]", file=sys.stderr)
+                elif self.ERR_STOP:
+                    choice = 'n'
+                    print("[AUTO STOP]", file=sys.stderr)
+                else:
+                    print("\n[?] Do you want to skip this element and continue? [y/N] ", file=sys.stderr, end="")
+                    choice = input()
                 if choice == 'n' or choice == 'N' or choice == "":
                     return None
 
@@ -184,7 +208,7 @@ class Resolver:
         try:
             return str(array[0]) + "." + str(array[1]) + "." + str(array[2]) + "." + str(array[3])
         except IndexError as e:
-            print("[D!!!] %s" % e)
+            print("[!!!] %s" % e, file=sys.stderr)
 
     # function converts decimal value to binary string
     def __dec2bins(self, val):
