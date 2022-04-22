@@ -79,7 +79,7 @@ class Scanner:
             # try to connect
             conn = s.connect((host, port))
             # connection at given port is established
-            self.result_array[host][0].append(f"\t[+] Port {port} is open. Probably '{socket.getservbyport(port)}'")
+            self.result_array[host][0].append(f"\t[+] Port {port} is open. Service: {socket.getservbyport(port)}")
         except Exception as e:
             # connection refused for some reason
             self.result_array[host][1].append(f"\t[-] Port {port} is closed. Reason: {e}")
