@@ -205,10 +205,7 @@ class Resolver:
 
     # function converts int array to ip string
     def __array2ips(self, array):
-        try:
-            return str(array[0]) + "." + str(array[1]) + "." + str(array[2]) + "." + str(array[3])
-        except IndexError as e:
-            print("[!!!] %s" % e, file=sys.stderr)
+        return str(array[0]) + "." + str(array[1]) + "." + str(array[2]) + "." + str(array[3])
 
     # function converts decimal value to binary string
     def __dec2bins(self, val):

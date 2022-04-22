@@ -19,6 +19,7 @@ Syntax: <br/>
 |                               |                                                              |
 | **Not supported yet**         | ---------------------------------------                      |
 | -v, --use-ipv6                | Specify hosts using IPv6 notation                            |
+| -u                            | Use UDP protocol                                             |
 
 
 
@@ -37,12 +38,12 @@ Ports and hosts specification
 | combined           | -4,7-10,15,100-     |
 
 
-#### Hosts can be specified as a single value, sequence or using subnet mask
-| Type                | Example                  |
-|---------------------|--------------------------|
-| single value        | www.google.com           |
-| sequence            | 127.0.0.1,www.github.com |
-| subnet mask         | 192.168.2.17/24          |
+#### Hosts can be specified as a single value, sequence or as an IP address with subnet mask
+| Type                | Example                   |
+|---------------------|---------------------------|
+| single value        | www.google.com            |
+| sequence            | 10.10.0.25,www.github.com |
+| subnet mask         | 192.168.2.17/24           |
 
 #### Reading hosts and ports from file
 Script does not have an in-built reading input from file mechanism. 
@@ -73,16 +74,16 @@ You can use this flags while specifying hosts and ports both manually and by usi
 
 Console output
 ---
-#### Output (log lines) type is described by one of the following signs
+#### Output type is described by one of the following signs
 
-| Logging syntax | Description                                  |
-|----------------|----------------------------------------------|
-| [i]            | information                                  |
-| [?]            | question; answer using one of options in [ ] |
-| [!]            | warning; it does not terminate the program   |
-| [!!!]          | critical; it does terminate                  |
-| [+]            | success                                      |
-| [-]            | failure                                      |
+| Syntax | Description                                  |
+|--------|----------------------------------------------|
+| [i]    | information                                  |
+| [?]    | question; answer using one of options in [ ] |
+| [!]    | warning; it does not terminate the program   |
+| [!!!]  | critical; it does terminate                  |
+| [+]    | success                                      |
+| [-]    | failure                                      |
 
 Additional features
 ---
@@ -93,6 +94,8 @@ In case of incorrectly specified host name/IP or port, when script finds that, t
 > Script created using Python 3.9
 
 > Script supports IPv4 addresses only (at this moment)
+
+> Script does not support scanning hosts connected via VPN 
 
 Created by OPest [GitHub](https://github.com/OPestv2 "OPest Github").
 ###### Feel free to use and modify if You find it useful

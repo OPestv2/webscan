@@ -5,7 +5,7 @@ from threading import Thread
 
 
 class Scanner:
-    def __init__(self, hosts, ports, timeout, show_closed=False, hide_open=False):
+    def __init__(self, hosts, ports, timeout, show_closed=False, hide_open=False, udp=False):
         # list of strings
         self.hosts = hosts
         # list of strings
@@ -14,6 +14,7 @@ class Scanner:
         if timeout is not None: self.timeout = timeout
         self.show_closed = show_closed
         self.hide_open = hide_open
+        self.udp = udp
 
         # dictionary for open and closed ports list assigned to specified host (later more hosts)
         self.result_array = {}
@@ -73,7 +74,10 @@ class Scanner:
 
     def __scan_port(self, host, port):
         # create socket
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_type = socket.SOCK_STREAM
+        if self.udp:
+            socket_type = socket.SOCK_DGRAM
+        s = socket.socket(socket.AF_INET, socket_type)
         try:
             s.settimeout(self.timeout)
             # try to connect

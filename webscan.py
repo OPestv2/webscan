@@ -50,10 +50,12 @@ if __name__ == '__main__':
                           default=False)
         # set onerror CONTINUE
         parser.add_option('-y', '--err-continue', action="store_true", dest='err_continue',
-                          help="Continue script execution if error occurs")
+                          help="Continue script execution if error occurs", default=False)
         # set onerror STOP
         parser.add_option('-n', '--err-stop', action="store_true", dest='err_stop',
-                          help="Abort script execution if error occurs")
+                          help="Abort script execution if error occurs", default=False)
+        # set UDP protocol
+        parser.add_option('-u', action="store_true", dest='udp', help="Use UDP protocol", default=False)
 
         # parse arguments
         (options, args) = parser.parse_args()
@@ -71,6 +73,7 @@ if __name__ == '__main__':
         hide_open = options.hide_open
         err_continue = options.err_continue
         err_stop = options.err_stop
+        udp = options.udp
 
         # check if hosts and ports are non empty
         if hosts is None or ports is None:
@@ -114,7 +117,7 @@ if __name__ == '__main__':
         print("[i] Hosts list contains %d element(s)" % len(hosts))
 
         # run scanner
-        scanner = Scanner(hosts, ports, timeout, show_closed, hide_open)
+        scanner = Scanner(hosts, ports, timeout, show_closed, hide_open, udp)
         scanner.scan()
 
         # count execution time
