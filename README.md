@@ -1,20 +1,25 @@
-Webscan is a python script used to scan given hosts' ports. 
-It returns ports states like open / closed.
+Webscan is a python script used to scan hosts' ports. 
+It returns ports states like open / closed and name of service running on the ports.
 
 Syntax: <br/>
-`webscan [-h | --help] -H hosts -P ports [-T time | --timeout=time] [-c | --show-closed] [-o | --hide-open]`
+`webscan    [-h | --help] | [-H hosts -P ports [-T time | --timeout=time] 
+            [-c | --show-closed] [-o | --hide-open]
+            [[-y | --err_continue] | [-n | --err_stop]]]`
 
-| Argument                      | Description                             |
-|-------------------------------|-----------------------------------------|
-| -h, --help                    | Show help and quit                      |
-| -H HOST, --host=HOST          | Set hosts                               |
-| -P PORT, --port=PORT          | Set ports                               |
-| -T TIMEOUT, --timeout=TIMEOUT | Set single connection timeout           |
-| -c, --show-closed             | Print list of closed ports              |
-| -o, --hide-open               | Don't print list of open ports          |
-|                               |                                         |
-| **Not supported yet**         | --------------------------------------- |
-| -v, --use-ipv6                | Specify hosts using IPv6 notation       |
+| Argument                      | Description                                                  |
+|-------------------------------|--------------------------------------------------------------|
+| -h, --help                    | Show help and quit                                           |
+| -H HOST, --host=HOST          | Set hosts                                                    |
+| -P PORT, --port=PORT          | Set ports                                                    |
+| -T TIMEOUT, --timeout=TIMEOUT | Set single connection timeout                                |
+| -c, --show-closed             | Print list of closed ports                                   |
+| -o, --hide-open               | Don't print list of open ports                               |
+| -y, --err-continue            | Continue the script when host or port resolving error occurs |
+| -n, --err-stop                | Stop the script when host or port resolving error occurs     |
+|                               |                                                              |
+| **Not supported yet**         | ---------------------------------------                      |
+| -v, --use-ipv6                | Specify hosts using IPv6 notation                            |
+
 
 
 
@@ -55,6 +60,16 @@ as shown below
 ```bash 
 python webscan.py -H _hosts_ -P _ports_ > _output_filename_
 ```
+
+Error messages (about wrong hosts and ports) are printed on **stderr** in console. 
+They will not be saved in file and user can manually choose to continue or exit. 
+If You want to avoid handling such errors add one of the following flags to the command.
+
+```-y``` or ```--err-continue``` tells script to skip wrong values and continue executing.
+
+```-n``` or ```--err-stop``` tells script to abort execution if wrong values occurs.
+
+You can use this flags while specifying hosts and ports both manually and by using file.
 
 Console output
 ---
