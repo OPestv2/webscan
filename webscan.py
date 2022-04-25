@@ -77,9 +77,9 @@ if __name__ == '__main__':
             print("[!!!] Error. Required HOST and PORT parameters, usage: " + parser.usage, file=sys.stderr)
             sys.exit(0)
 
-        # check if woman is running script (choice confusion)
+        # choice confusion
         if err_continue is True and err_stop is True:
-            print("[!!!] You can not force to continue and abort execution at the same time! Idk what to do...",
+            print("[!!!] You can not use both --err_continue and --err_stop flags at once",
                   file=sys.stderr)
             sys.exit(0)
 
